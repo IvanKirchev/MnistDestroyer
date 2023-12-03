@@ -3,6 +3,7 @@ import math
 import download_data as dd
 import copy
 from activations import relu, softmax
+from cost_functions import categorical_cross_entropy_cost
 
 def init_parameters(layers, input_shape):
     """
@@ -24,7 +25,7 @@ def init_parameters(layers, input_shape):
         parameters['b' + str(l + 1)] = np.zeros((layers[l], 1))
 
     # Xavier initialization for softmax layer
-    parameters['W' + str(L)] = np.random.normal(0, math.sqrt(2 / layers[L - 2]), (layers[L - 1], layers[L - 2]))
+    parameters['W' + str(L)] = np.random.normal(0, 1 / (layers[L - 2] + 10), (layers[L - 1], layers[L - 2]))
     parameters['b' + str(L)] = np.zeros((layers[L - 1], 1))
     
     return parameters
@@ -118,25 +119,6 @@ def backward_prop(AL, y, caches, lambd, keep_prob):
         grads['db' + str(l + 1)] = db
 
     return grads
-   
-def compute_cost(y_hat, y, params, lambd):
-    '''
-    Cost function: Categorical Cross Entropy Loss for 10 classes
-
-    Params:
-        y_hat: shape (10, 60000)
-        y:     shape (10, 60000)
-    '''
-    reg_term = 0
-    m = y_hat.shape[1]
-    for key,val in params.items():
-        if 'W' in key:
-            reg_term += np.sum(np.square(val))
-
-    loss = np.sum(np.multiply(y, np.log(y_hat + 1e-10)), axis = 0, keepdims = True) 
-    cost = -( 1 / m) * np.sum(loss)  # + ((lambd / (m * 2)) * reg_term) L2 reg
-
-    return cost
 
 def update_parameters(grads, params, learning_rate):
     parameters = copy.deepcopy(params)
@@ -260,13 +242,15 @@ def model(x_train, y_train, x_test, y_test, learning_rate = 0.001, epochs = 30, 
             grads = backward_prop(AL, y_batch, caches, lambd, keep_prob)
             
             t = t + 1
-
+            # Adam optimizer
             params, v, s, _, _ = update_parameters_adam(grads, params, v, s, t, learning_rate, beta1, beta2,  epsilon)
+            # Regular Mini-batch GD
             # params = update_parameters(grads, params, learning_rate)
+            # Mini-batch GD with momentum
             # params = update_parameters_momentum(grads, params, v, learning_rate, beta)
 
-            loss = compute_cost(AL, y_batch, params, lambd)
-            if i % 10 == 0:
+            if i % 20 == 0:
+                loss = categorical_cross_entropy_cost(AL, y_batch, params, lambd)
                 print(f'Loss at epoch {e} batch {i} is {loss}')
                 # print(f'Max gradient at layer 1: {np.max(grads["dW1"][0])}')
             
