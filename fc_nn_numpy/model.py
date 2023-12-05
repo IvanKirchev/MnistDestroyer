@@ -212,46 +212,85 @@ def initialize_momentum(parameters):
 
     return v
 
-def model(x_train, y_train, x_test, y_test, learning_rate = 0.001, epochs = 30, batch_size = 256, layers = [128, 64, 32, 10], lambd = 0.01, keep_prob = 0.9, beta = 0.9, beta1 = 0.9, beta2 = 0.999,  epsilon = 1e-8):
+def evaluate(x_train, y_train, x_test, y_test, parameters, layers):
+    # Computing train accuracy
+    AL_train, cache = forward_prop(parameters, x_train, layers, keep_prob=1)
+
+    y_train_hat = np.argmax(AL_train, axis = 0, keepdims = True)
+    y_train_truth = np.argmax(y_train, axis = 0, keepdims = True)
+
+    train_diff = np.sum(y_train_hat == y_train_truth)
+    m = x_train.shape[1]
+
+    train_accuracy = train_diff / m
+    print(f'Train Accuracy: {train_accuracy}')
+
+
+    #Computing test accuracy
+    AL_test, cache = forward_prop(parameters, x_test, layers, keep_prob=1)
+
+    y_test_hat = np.argmax(AL_test, axis = 0, keepdims = True)
+    y_test_truth = np.argmax(y_test, axis = 0, keepdims = True)
+
+    test_diff = np.sum(y_test_hat == y_test_truth)
+    m_test = x_test.shape[1]
+
+    test_accuracy = test_diff / m_test
+    print(f'Test Accuracy: {test_accuracy}')
+
+def model(x_train, y_train, x_test, y_test, training = True, learning_rate = 0.001, epochs = 1, batch_size = 256, layers = [128, 64, 32, 10], lambd = 0.01, keep_prob = 0.9, beta = 0.9, beta1 = 0.9, beta2 = 0.999,  epsilon = 1e-8):
     """
     Params:
-    x_train: (n, m)
-    y_train: (10, m)
-    x_test: (n, t)
-    y_test; (10, t)
+    x_train: (m_train, 28, 28, 1)
+    y_train: (10, m_test)
+    x_test: (m_test, 28, 28, 1)
+    y_test; (10, m_train)
     """
+    
+    # Reshape so m is the last axis
+    m_train = x_train.shape[0]
+    m_test = x_test.shape[0]
+    x_train = x_train.reshape(m_train, -1).T
+    x_test = x_test.reshape(m_test, -1).T
+
     params = init_parameters(layers, x_train.shape[0])
     x_train = x_train / 255
-    v, s = initialize_adam(params)
-    # v = initialize_momentum(params)
-    t = 0
+    x_test = x_test / 255
+    if training:
+        v, s = initialize_adam(params)
+        # v = initialize_momentum(params)
+        t = 0
 
-    for e in range(epochs):
-        mini_batches = random_mini_batches(x_train, y_train, batch_size)
-        if e > 15:
-            learning_rate = 0.0001
-        if e > 20:
-            learning_rate = 0.00001
-        print("Learning rate is: ", learning_rate)
-        for i in range(len(mini_batches)):
-            x_batch = mini_batches[i][0]
-            y_batch = mini_batches[i][1]
+        for e in range(epochs):
+            mini_batches = random_mini_batches(x_train, y_train, batch_size)
+            if e > 15:
+                learning_rate = 0.0001
+            if e > 20:
+                learning_rate = 0.00001
 
-            AL, caches = forward_prop(params, x_batch, layers, keep_prob)
+            for i in range(len(mini_batches)):
+                x_batch = mini_batches[i][0]
+                y_batch = mini_batches[i][1]
 
-            grads = backward_prop(AL, y_batch, caches, lambd, keep_prob)
-            
-            t = t + 1
-            # Adam optimizer
-            params, v, s, _, _ = update_parameters_adam(grads, params, v, s, t, learning_rate, beta1, beta2,  epsilon)
-            # Regular Mini-batch GD
-            # params = update_parameters(grads, params, learning_rate)
-            # Mini-batch GD with momentum
-            # params = update_parameters_momentum(grads, params, v, learning_rate, beta)
+                AL, caches = forward_prop(params, x_batch, layers, keep_prob)
 
-            if i % 20 == 0:
-                loss = categorical_cross_entropy_cost(AL, y_batch, params, lambd)
-                print(f'Loss at epoch {e} batch {i} is {loss}')
-                # print(f'Max gradient at layer 1: {np.max(grads["dW1"][0])}')
-            
-    return params
+                grads = backward_prop(AL, y_batch, caches, lambd, keep_prob)
+                
+                t = t + 1
+                # Adam optimizer
+                params, v, s, _, _ = update_parameters_adam(grads, params, v, s, t, learning_rate, beta1, beta2,  epsilon)
+                # Regular Mini-batch GD
+                # params = update_parameters(grads, params, learning_rate)
+                # Mini-batch GD with momentum
+                # params = update_parameters_momentum(grads, params, v, learning_rate, beta)
+
+                if i % 20 == 0:
+                    loss = categorical_cross_entropy_cost(AL, y_batch, params, lambd)
+                    print(f'Train loss at epoch {e} batch {i} is {loss}')
+                    # print(f'Max gradient at layer 1: {np.max(grads["dW1"][0])}')
+
+        np.savez('parameters.npz', **params)
+        evaluate(x_train, y_train, x_test, y_test, params, layers)
+    else:
+        with np.load('parameters.npz') as parameters:
+            evaluate(x_train, y_train, x_test, y_test, parameters, layers)

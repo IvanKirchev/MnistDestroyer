@@ -1,6 +1,6 @@
 import numpy as np
 
-def categorical_cross_entropy_cost(y_hat, y, params, lambd = None):
+def categorical_cross_entropy_cost(y_hat, y, params = None, lambd = None):
     '''
     Cost function: Categorical Cross Entropy Loss for c classes over m examples
 

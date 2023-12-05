@@ -1,39 +1,28 @@
-from fc_nn_numpy.model import model, forward_prop
+from fc_nn_numpy.model import model as fc_model, forward_prop
+from cnn_numpy.model import model as cnn_np_model
+from cnn_tf.model import model as cnn_tf_model
 import download_data as dd
 import numpy as np
 
 if __name__ == "__main__":
-    x_train, y_train, x_test, y_test = dd.load_data()
-    # num_classes = 10
-    # one_hot_labels = np.zeros((y_train.shape[0], num_classes))
-    # one_hot_labels[np.arange(y_train.shape[0]), y_train.flatten()] = 1
 
-    # parameters = model(x_train, one_hot_labels.T, x_test, y_test)
+    x_train, y_train, x_test, y_test = dd.load_data(flatten = True)
+    num_classes = 10
 
-    # np.savez('parameters.npz', **parameters)
+    y_train_one_hot = np.zeros((y_train.shape[0], num_classes))
+    y_train_one_hot[np.arange(y_train.shape[0]), y_train.flatten()] = 1
 
-    with np.load('parameters.npz') as parameters:
-        # Computing train accuracy
-        input = x_train / 255
-        AL_train, cache = forward_prop(parameters, input, [128, 64, 32, 10], keep_prob=1)
+    y_test_one_hot = np.zeros((y_test.shape[0], num_classes))
+    y_test_one_hot[np.arange(y_test.shape[0]), y_test.flatten()] = 1
 
-        y_hat = np.argmax(AL_train, axis = 0, keepdims = True)
-        y_train = y_train.T
-        train_diff = np.sum(y_hat == y_train)
-        m = input.shape[1]
+    # Uncomment the proceeding line to run the fully connected NN implemented in numpy
+    # fc_model(x_train, y_train_one_hot.T, x_test, y_test_one_hot.T, training = True)
 
-        train_accuracy = train_diff / m
-        print(f'Train Accuracy: {train_accuracy}')
+    # CNN implementaion in numpy. WIP!!!
+    # x_train = x_train[0:900]
+    # one_hot_labels = one_hot_labels[0:900].T
+    # cnn_model(x_train, one_hot_labels)
 
-        
-        #Computing test accuracy
-        test_input = x_test / 255
-        y_test = y_test.T
-        AL_test, cache = forward_prop(parameters, test_input, [128, 64, 32, 10], keep_prob=1)
-
-        ytest_hat = np.argmax(AL_test, axis = 0, keepdims = True)
-        test_diff = np.sum(ytest_hat == y_test)
-        m_test = test_input.shape[1]
-
-        test_accuracy = test_diff / m_test
-        print(f'Test Accuracy: {test_accuracy}')
+    # CNN implemented with Tensorflow's sequential API
+    cnn_tf_model(x_train, y_train_one_hot, x_test, y_test_one_hot, epochs = 1)
+    
