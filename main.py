@@ -1,7 +1,8 @@
-from fc_nn_numpy.model import model as fc_model, forward_prop
+from mlp_numpy.model import model as fc_model, forward_prop
 from cnn_numpy.model import model as cnn_np_model
 from cnn_tf.model import model as cnn_tf_model
 from resnet50_tf.model import model as resnet_model
+from pretrained_resnet_tf.model import model as renet_pretrained_model
 import download_data as dd
 import numpy as np
 import os
@@ -30,6 +31,9 @@ if __name__ == "__main__":
     # cnn_tf_model(x_train, y_train_one_hot, x_test, y_test_one_hot, epochs = 1)
 
     #MODEL 4: ResNet 50
-    resnet_model(x_train, y_train_one_hot, x_test, y_test_one_hot, 0.001, 10, 256)
+    # resnet_model(x_train, y_train_one_hot, x_test, y_test_one_hot, 0.001, 10, 256)
+
+    #MODEL 5: ResNet 50 pre-trained on imagenet
+    renet_pretrained_model(x_train, y_train_one_hot, x_test, y_test_one_hot)
 
     
