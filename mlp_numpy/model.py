@@ -4,6 +4,8 @@ import download_data as dd
 import copy
 from activations import relu, softmax
 from cost_functions import categorical_cross_entropy_cost
+from tqdm import tqdm
+import sys
 
 def init_parameters(layers, input_shape):
     '''
@@ -284,8 +286,8 @@ def model(x_train, y_train, x_test, y_test, learning_rate = 0.001,
             learning_rate = 0.0001
         if e > 20:
             learning_rate = 0.00001
-
-        for i in range(len(mini_batches)):
+        tq = tqdm(range(len(mini_batches)), desc='Epoch: ' + str(e), unit='setps', bar_format='{l_bar}{bar}| {n_fmt}/{total_fmt} {postfix}')
+        for i in tq:
             x_batch = mini_batches[i][0]
             y_batch = mini_batches[i][1]
 
@@ -305,7 +307,8 @@ def model(x_train, y_train, x_test, y_test, learning_rate = 0.001,
 
             if i % 20 == 0:
                 loss = categorical_cross_entropy_cost(AL, y_batch, params, lambd)
-                print(f'Train loss at epoch {e} batch {i} is {loss}')
+                tq.set_postfix(Loss=loss)
+                # print(f'Train loss at epoch {e} batch {i} is {loss}')
                 # print(f'Max gradient at layer 1: {np.max(grads['dW1'][0])}')
 
     evaluate(x_train, y_train, x_test, y_test, params, layers)

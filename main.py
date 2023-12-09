@@ -28,10 +28,10 @@ if __name__ == '__main__':
         'in an attempt to find the best-performing one on the MNIST dataset.' 
     )
 
-    parser.add_argument('model_name', choices=['MLP', 'Conv', 'ResNet50', 'ResNet50_fine_tuned'])
-    parser.add_argument('learning_rate', default=0.001)
-    parser.add_argument('batch_size', default=128)
-    parser.add_argument('epochs', default=10)
+    parser.add_argument('model_name', choices=['mlp', 'conv', 'resnet50', 'resnet50_finetuned'], help='Model to be trained')
+    parser.add_argument('--learning_rate', default=0.001)
+    parser.add_argument('--batch_size', default=128)
+    parser.add_argument('--epochs', default=10)
 
     args = parser.parse_args()
     model_name = args.model_name
@@ -42,13 +42,13 @@ if __name__ == '__main__':
     x_train, y_train, x_test, y_test = get_data()
 
     print('Using model: ', model_name)
-    if model_name == 'MLP':
+    if model_name == 'mlp':
         fc_model(x_train, y_train.T, x_test, y_test.T, learning_rate, batch_size, epochs)
-    elif model_name == 'ConvNet':
+    elif model_name == 'conv':
         cnn_tf_model(x_train, y_train, x_test, y_test, learning_rate, batch_size, epochs)
-    elif model_name == 'ResNet50':
+    elif model_name == 'resnet50':
         resnet_model(x_train, y_train, x_test, y_test, learning_rate, batch_size, epochs)
-    elif model_name == 'ResNet50_fine_tuned':
+    elif model_name == 'resnet50_finetuned':
         resnet_pretrained_model(x_train, y_train, x_test, y_test, learning_rate, batch_size, epochs)
 
     # MODEL 2: CNN implementaion in numpy. WIP!!!
