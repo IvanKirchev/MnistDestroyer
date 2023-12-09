@@ -6,13 +6,13 @@ from activations import relu, softmax
 from cost_functions import categorical_cross_entropy_cost
 
 def init_parameters(layers, input_shape):
-    """
+    '''
     Parameter initialization. ReLU for the hidden layers, Softmax for the last layer
 
     Params:
     layers: array of the network dimentions
     input_shape: the shape of the input as a tuple
-    """
+    '''
     parameters = {}
     L = len(layers)
 
@@ -31,12 +31,12 @@ def init_parameters(layers, input_shape):
     return parameters
 
 def forward_prop(params, X, layers, keep_prob):
-    """
+    '''
     Forward pass through the network
 
     params: Weights and biases for each layer
     X: Input. Shape (n, m)
-    """
+    '''
     caches = []
     AL = 0
     L = len(layers)
@@ -67,14 +67,14 @@ def forward_prop(params, X, layers, keep_prob):
     return AL, caches
 
 def linear_activation_backward(dA, cache, m, keep_prob):
-    """
+    '''
     Compute gradients for a single layer
 
     Params:
     dA: Gradient of activation at the current layer
     cache: tuple ((A_prev, W, b), Z)
     m: number of training examples
-    """
+    '''
     ((A_prev, W, b, D), Z) = cache
 
     Z[Z <= 0] = 0
@@ -93,14 +93,14 @@ def linear_activation_backward(dA, cache, m, keep_prob):
 
 
 def backward_prop(AL, y, caches, lambd, keep_prob):
-    """
+    '''
     Compute gradients of the cost function with resepect to each parameter (W,b)
 
     Params:
     AL: Last layer's activations. Shape: (10, m)
     y: True labels. Shape (10, m)
     caches: Array of caches for each layer storing ((A_prev, W, b), Z)
-    """
+    '''
     grads = {}
     L = len(caches)
     m = y.shape[1]
@@ -109,13 +109,13 @@ def backward_prop(AL, y, caches, lambd, keep_prob):
     ((A_prev, W, b), Z) = caches[-1]
     dZL = AL - y
 
-    grads['dW' + str(L)] = (1 / m) * np.dot(dZL, A_prev.T) # + (lambd / m) * W L2 reg
+    grads['dW' + str(L)] = (1 / m) * np.dot(dZL, A_prev.T) # + (lambd / m) * W
     grads['db' + str(L)] = (1 / m) * np.sum(dZL, keepdims = True, axis = 1)
     dA_prev = np.dot(W.T, dZL)
     
     for l in reversed(range(L - 1)):
         dA_prev, dW, db = linear_activation_backward(dA_prev, caches[l], m, keep_prob)
-        grads['dW' + str(l + 1)] = dW # + (lambd / m) * W L2 reg
+        grads['dW' + str(l + 1)] = dW # + (lambd / m) * W
         grads['db' + str(l + 1)] = db
 
     return grads
@@ -135,10 +135,10 @@ def update_parameters_momentum(grads, params, v, learning_rate, beta):
     L = len(parameters) // 2
 
     for l in range(1, L + 1):
-        v["dW" + str(l)] = beta * v["dW" + str(l)] + (1 - beta) * grads['dW' + str(l)]
-        v["db" + str(l)] = beta * v["db" + str(l)] + (1 - beta) * grads['db' + str(l)]
-        parameters["W" + str(l)] -= learning_rate * v["dW" + str(l)]
-        parameters["b" + str(l)] -= learning_rate * v["db" + str(l)]
+        v['dW' + str(l)] = beta * v['dW' + str(l)] + (1 - beta) * grads['dW' + str(l)]
+        v['db' + str(l)] = beta * v['db' + str(l)] + (1 - beta) * grads['db' + str(l)]
+        parameters['W' + str(l)] -= learning_rate * v['dW' + str(l)]
+        parameters['b' + str(l)] -= learning_rate * v['db' + str(l)]
 
     return parameters
 
@@ -149,33 +149,34 @@ def update_parameters_adam(grads, params, v, s, t, learning_rate, beta1, beta2, 
     s_corrected = {}
     
     for l in range(1, L + 1):
-        v["dW" + str(l)] = beta1 * v["dW" + str(l)] + (1 - beta1) * grads['dW' + str(l)]
-        v["db" + str(l)] = beta1 * v["db" + str(l)] + (1 - beta1) * grads['db' + str(l)]
+        v['dW' + str(l)] = beta1 * v['dW' + str(l)] + (1 - beta1) * grads['dW' + str(l)]
+        v['db' + str(l)] = beta1 * v['db' + str(l)] + (1 - beta1) * grads['db' + str(l)]
 
-        v_corrected["dW" + str(l)] = v["dW" + str(l)] / (1 - (beta1 ** t))
-        v_corrected["db" + str(l)] = v["db" + str(l)] / (1 - (beta1 ** t))
+        v_corrected['dW' + str(l)] = v['dW' + str(l)] / (1 - (beta1 ** t))
+        v_corrected['db' + str(l)] = v['db' + str(l)] / (1 - (beta1 ** t))
 
-        s["dW" + str(l)] = beta2 * s["dW" + str(l)] + (1 - beta2) * (grads['dW' + str(l)] ** 2)
-        s["db" + str(l)] = beta2 * s["db" + str(l)] + (1 - beta2) * (grads['db' + str(l)] ** 2)
+        s['dW' + str(l)] = beta2 * s['dW' + str(l)] + (1 - beta2) * (grads['dW' + str(l)] ** 2)
+        s['db' + str(l)] = beta2 * s['db' + str(l)] + (1 - beta2) * (grads['db' + str(l)] ** 2)
 
-        s_corrected["dW" + str(l)] = s["dW" + str(l)] / (1 - (beta2 ** t))
-        s_corrected["db" + str(l)] = s["db" + str(l)] / (1 - (beta2 ** t))
+        s_corrected['dW' + str(l)] = s['dW' + str(l)] / (1 - (beta2 ** t))
+        s_corrected['db' + str(l)] = s['db' + str(l)] / (1 - (beta2 ** t))
 
-        parameters["W" + str(l)] -= learning_rate * (v_corrected["dW" + str(l)] / (np.sqrt(s_corrected["dW" + str(l)]) + epsilon))
-        parameters["b" + str(l)] -= learning_rate * (v_corrected["db" + str(l)] / (np.sqrt(s_corrected["db" + str(l)]) + epsilon))
+        parameters['W' + str(l)] -= learning_rate * (v_corrected['dW' + str(l)] / (np.sqrt(s_corrected['dW' + str(l)]) + epsilon))
+        parameters['b' + str(l)] -= learning_rate * (v_corrected['db' + str(l)] / (np.sqrt(s_corrected['db' + str(l)]) + epsilon))
         
 
     return parameters, v, s, v_corrected, s_corrected
 
 def random_mini_batches(X, Y, mini_batch_size):
-    """
-    Create an array of mini batches by partitioning the randomly shuffled datasets
+    '''
+    Create an array of mini batches by first randomly shuffling the 
+    dataset and then partitioning it into batches
 
     Params:
     X: (n, m)
     Y: (10, m)
     mini_batch_size: int
-    """
+    '''
     m = X.shape[1]
     mini_batches = []
 
@@ -225,7 +226,6 @@ def evaluate(x_train, y_train, x_test, y_test, parameters, layers):
     train_accuracy = train_diff / m
     print(f'Train Accuracy: {train_accuracy}')
 
-
     #Computing test accuracy
     AL_test, cache = forward_prop(parameters, x_test, layers, keep_prob=1)
 
@@ -238,16 +238,33 @@ def evaluate(x_train, y_train, x_test, y_test, parameters, layers):
     test_accuracy = test_diff / m_test
     print(f'Test Accuracy: {test_accuracy}')
 
-def model(x_train, y_train, x_test, y_test, training = True, learning_rate = 0.001, epochs = 1, batch_size = 256, layers = [128, 64, 32, 10], lambd = 0.01, keep_prob = 0.9, beta = 0.9, beta1 = 0.9, beta2 = 0.999,  epsilon = 1e-8):
-    """
+def model(x_train, y_train, x_test, y_test, learning_rate = 0.001, 
+          batch_size = 256, epochs = 1, layers = [128, 64, 32, 10], lambd = 0.01, 
+          keep_prob = 0.9, beta = 0.9, beta1 = 0.9, beta2 = 0.999,  epsilon = 1e-8):
+    '''
+    Training of an MLP model. Features of the model are: mini-batch GD with Adam, 
+    dropout regularization, L2 regularization. For using Momentum replace 
+    Adam init on line #276 and Adam iters on line #297-298 with the Momentum related code. 
+
     Params:
-    x_train: (m_train, 28, 28, 1)
-    y_train: (10, m_test)
-    x_test: (m_test, 28, 28, 1)
-    y_test; (10, m_train)
-    """
+    x_train: tuple (m, 28, 28, 1)
+    y_train: tuple (10, m)
+    x_test: tuple (t, 28, 28, 1)
+    y_test; tuple (10, t)
     
-    # Reshape so m is the last axis
+    learning_rate: scaler
+    epochs: scaler
+    batch_size: scaler
+    layers: array - Dimentions of the layers
+    lambd: scaler - Regularization parameter
+    keep_prob: scaler - Dropout regularization parameter
+    beta: scaler - Momentum optimizer parameter. N
+    beta1: scaler - Adam optimizer parameter
+    beta2: scaler - Adam optimizer parameter
+    epsilon: sclaer - Adam optimizer parameter
+    '''
+
+    # Reshape so m (num of examples) is at the last axis
     m_train = x_train.shape[0]
     m_test = x_test.shape[0]
     x_train = x_train.reshape(m_train, -1).T
@@ -256,41 +273,39 @@ def model(x_train, y_train, x_test, y_test, training = True, learning_rate = 0.0
     params = init_parameters(layers, x_train.shape[0])
     x_train = x_train / 255
     x_test = x_test / 255
-    if training:
-        v, s = initialize_adam(params)
-        # v = initialize_momentum(params)
-        t = 0
 
-        for e in range(epochs):
-            mini_batches = random_mini_batches(x_train, y_train, batch_size)
-            if e > 15:
-                learning_rate = 0.0001
-            if e > 20:
-                learning_rate = 0.00001
+    v, s = initialize_adam(params)
+    # v = initialize_momentum(params)
+    t = 0
 
-            for i in range(len(mini_batches)):
-                x_batch = mini_batches[i][0]
-                y_batch = mini_batches[i][1]
+    for e in range(epochs):
+        mini_batches = random_mini_batches(x_train, y_train, batch_size)
+        if e > 15:
+            learning_rate = 0.0001
+        if e > 20:
+            learning_rate = 0.00001
 
-                AL, caches = forward_prop(params, x_batch, layers, keep_prob)
+        for i in range(len(mini_batches)):
+            x_batch = mini_batches[i][0]
+            y_batch = mini_batches[i][1]
 
-                grads = backward_prop(AL, y_batch, caches, lambd, keep_prob)
-                
-                t = t + 1
-                # Adam optimizer
-                params, v, s, _, _ = update_parameters_adam(grads, params, v, s, t, learning_rate, beta1, beta2,  epsilon)
-                # Regular Mini-batch GD
-                # params = update_parameters(grads, params, learning_rate)
-                # Mini-batch GD with momentum
-                # params = update_parameters_momentum(grads, params, v, learning_rate, beta)
+            AL, caches = forward_prop(params, x_batch, layers, keep_prob)
 
-                if i % 20 == 0:
-                    loss = categorical_cross_entropy_cost(AL, y_batch, params, lambd)
-                    print(f'Train loss at epoch {e} batch {i} is {loss}')
-                    # print(f'Max gradient at layer 1: {np.max(grads["dW1"][0])}')
+            grads = backward_prop(AL, y_batch, caches, lambd, keep_prob)
+            
+            # Adam optimizer
+            t = t + 1
+            params, v, s, _, _ = update_parameters_adam(grads, params, v, s, t, learning_rate, beta1, beta2,  epsilon)
+            
+            # Regular Mini-batch GD
+            # params = update_parameters(grads, params, learning_rate)
 
-        np.savez('parameters.npz', **params)
-        evaluate(x_train, y_train, x_test, y_test, params, layers)
-    else:
-        with np.load('parameters.npz') as parameters:
-            evaluate(x_train, y_train, x_test, y_test, parameters, layers)
+            # Mini-batch GD with momentum
+            # params = update_parameters_momentum(grads, params, v, learning_rate, beta)
+
+            if i % 20 == 0:
+                loss = categorical_cross_entropy_cost(AL, y_batch, params, lambd)
+                print(f'Train loss at epoch {e} batch {i} is {loss}')
+                # print(f'Max gradient at layer 1: {np.max(grads['dW1'][0])}')
+
+    evaluate(x_train, y_train, x_test, y_test, params, layers)

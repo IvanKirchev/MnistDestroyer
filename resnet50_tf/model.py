@@ -53,7 +53,21 @@ def convolutional_block(X, f, filters, s = 2, initializer=glorot_uniform):
     return X
 
 
-def model(x_train, y_train, x_test, y_test, learning_rate, epochs, batch_size):
+def model(x_train, y_train, x_test, y_test, learning_rate, batch_size, epochs):
+    '''
+    Training of an ResNet50 model.
+
+    Params:
+    x_train: tuple (m, 28, 28, 1)
+    y_train: tuple (10, m)
+    x_test: tuple (t, 28, 28, 1)
+    y_test; tuple (10, t)
+
+    learning_rate: scaler
+    epochs: scaler
+    batch_size: scaler
+    '''
+
     #Normilize input
     x_train = x_train / 255
     x_test = x_test / 255
@@ -96,4 +110,6 @@ def model(x_train, y_train, x_test, y_test, learning_rate, epochs, batch_size):
     
     model.compile(optimizer = tf.keras.optimizers.Adam(learning_rate), loss = 'categorical_crossentropy', metrics = ['accuracy'])
     model.fit(x_train, y_train, batch_size, epochs)
-    print(model.evaluate(x_test, y_test))
+    
+    (loss, accuracy) = model.evaluate(x_test, y_test)
+    print(f'Test loss: {loss}. Test accuracy: {accuracy}')

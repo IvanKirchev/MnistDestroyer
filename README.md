@@ -8,7 +8,7 @@ with the following architecture:
 input -> 128 -> 64 -> 32 -> 10
         relu   relu  relu   softmax
 
-The implememntaion includes: 
+Model implementaion: 
     Input normalization
     He (for ReLU) and Xavier (for Softmax) parameter initializations
     Forward and Backward propagation with Categorical Cross-Entropy Loss function
@@ -22,21 +22,19 @@ The implememntaion includes:
         L2
         Dropout
 
-Performance:
-    Best performance: 
-        Train acc: 99.6817%
-        Test acc: 97.85%
-
 ## CNN implementation with numpy
     Work in Progress
 
 ## CNN implementation with tensorflow
+ConvNet with the following architecture:
+
 input -> Conv2D -> BatchNorm -> ReLU -> MaxPool -> Conv2D -> BatchNorm -> ReLU -> MaxPool -> Conv2D -> BatchNorm -> ReLU -> MaxPool -> Flatten -> Dense -> SoftMax
 
 
 ## ResNet50 implemented with tensorflow
+Tensorflow implementation of ResNet50
 Con2D -> BatchNorm -> ReLU -> MaxPool -> ConvBlock -> 2xIdentityBlock -> ConvBlock -> 3xIdentity -> ConvBlock -> 5xIdentity -> ConvBlock -> 2xIdentity -> AvgPool -> Flatten -> Softmax
 
 
 ## ResNet50 pretrained on imageNet dataset
-Replaced the last layer with a 10 units softmax layer
+Fine-turing a ResNet50 model pre-trained on ImageNet dataset
